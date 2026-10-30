@@ -1,0 +1,140 @@
+<div class="dashboard">
+
+  <app-navbar></app-navbar>
+
+  <!-- Layout principal: formulario a la izquierda, visualización a la derecha -->
+  <div class="dashboard-grid">
+
+    <!-- Columna izquierda: formulario y ecuación -->
+    <aside class="left-col">
+      <app-circuit-form
+        (simularSolicitada)="onSimular($event)"
+        (resetSolicitado)="onReset()">
+      </app-circuit-form>
+
+      <!-- Tarjeta del modelo matemático -->
+      <section class="equation-card">
+        <h3>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+          Modelo Matemático
+        </h3>
+        <div class="equation-block">
+          <p class="equation-label">EDO de primer orden:</p>
+          <div class="equation">
+            <em>dF</em>/<em>dt</em> + <em>k<sub>ia</sub></em> · <em>F</em>(<em>t</em>) = <em>E</em>(<em>t</em>)
+          </div>
+          <p class="equation-label">Condición inicial:</p>
+          <div class="equation"><em>F</em>(0) = 0</div>
+          <p class="equation-label">Solución (Laplace + Heaviside):</p>
+          <div class="equation small">
+            F(t) = (E<sub>0</sub>/k<sub>ia</sub>) · Σ [(1 − e<sup>−k<sub>ia</sub>(t−a<sub>i</sub>)</sup>)·U(t−a<sub>i</sub>) − (1 − e<sup>−k<sub>ia</sub>(t−b<sub>i</sub>)</sup>)·U(t−b<sub>i</sub>)]
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Columna derecha: gráfica + métricas -->
+    <main class="right-col">
+
+      <!-- Estado vacío -->
+      <div *ngIf="datos().length === 0 && !cargando()" class="empty-state">
+        <div class="empty-icon">⏱</div>
+        <h2>Aún no hay simulación</h2>
+        <p>Configure los parámetros del circuito y presione <strong>Simular fatiga</strong> para visualizar la curva F(t).</p>
+      </div>
+
+      <!-- Cargando -->
+      <div *ngIf="cargando()" class="loading-state">
+        <div class="spinner"></div>
+        <p>Resolviendo la ecuación diferencial...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error()" class="error-banner">
+        ⚠ {{ error() }}
+      </div>
+
+      <!-- Resultados -->
+      <ng-container *ngIf="datos().length > 0 && !cargando()">
+
+        <!-- Métricas agregadas -->
+        <section class="metrics-row" *ngIf="metricas() as m">
+          <div class="metric-card">
+            <div class="metric-label">Fatiga máxima</div>
+            <div class="metric-value">{{ m.fatigaMaxima | number:'1.2-2' }}</div>
+            <div class="metric-sub">en t = {{ m.tiempoFatigaMaxima }}s</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Promedio última ronda</div>
+            <div class="metric-value">{{ m.fatigaPromedioTrabajoUltimaRonda | number:'1.2-2' }}</div>
+            <div class="metric-sub">durante el trabajo</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Fatiga residual</div>
+            <div class="metric-value">{{ m.fatigaFinal | number:'1.3-3' }}</div>
+            <div class="metric-sub">a t = {{ m.duracionTotal }}s</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Duración total</div>
+            <div class="metric-value">{{ (m.duracionTotal / 60) | number:'1.1-1' }}<span class="unit">min</span></div>
+            <div class="metric-sub">{{ m.duracionTotal }}s simulados</div>
+          </div>
+        </section>
+
+        <!-- Insight Card -->
+        <div class="insight-card" *ngIf="insightMessage() as insight" [ngClass]="insight.nivel">
+          {{ insight.texto }}
+        </div>
+
+        <!-- ── Análisis IA ─────────────────────────────── -->
+        <div class="ia-section">
+
+          <!-- Botón disparador (sin consejo todavía) -->
+          <button
+            *ngIf="!consejoEntrenadorIA() && !cargandoAnalisis() && !errorIA()"
+            class="btn-ia"
+            (click)="solicitarAnalisisIA()">
+            <span class="ia-btn-icon">✦</span>
+            Analizar con Entrenador IA
+          </button>
+
+          <!-- Cargando -->
+          <div class="ia-loading" *ngIf="cargandoAnalisis()">
+            <div class="spinner ia-spinner"></div>
+            <span>Consultando al entrenador IA…</span>
+          </div>
+
+          <!-- Tarjeta con el consejo -->
+          <div class="ia-card" *ngIf="consejoEntrenadorIA() && !cargandoAnalisis()">
+            <header class="ia-card-header">
+              <div class="ia-tag">✦ Entrenador IA</div>
+              <button class="ia-refresh-btn" (click)="solicitarAnalisisIA()" title="Regenerar">↺ Regenerar</button>
+            </header>
+            <div class="ia-card-text" [innerHTML]="consejoEntrenadorIA()"></div>
+          </div>
+
+          <!-- Error de conexión -->
+          <div class="ia-error" *ngIf="errorIA() && !cargandoAnalisis()">
+            <span>⚠</span>
+            <span>{{ errorIA() }}</span>
+            <button class="ia-retry-btn" (click)="solicitarAnalisisIA()">Reintentar</button>
+          </div>
+
+        </div>
+
+        <!-- Gráfica principal + Barras -->
+        <app-fatigue-chart [datos]="datos()"></app-fatigue-chart>
+
+      </ng-container>
+
+    </main>
+  </div>
+
+  <footer class="dashboard-footer">
+    <span>Proyecto académico · Ecuaciones Diferenciales · IUAJC 2026</span>
+    <span class="authors">Anibal Caicedo · Santiago Orozco</span>
+  </footer>
+
+</div>

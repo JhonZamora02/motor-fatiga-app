@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor Inteligente de Fatiga · Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Newsreader', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-alt: #ede9e0;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --border: #d4cfc4;
+  --accent: #ff6b35;
+  --accent-dark: #e55525;
+  --error: #c0392b;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 32px 48px;
+  font-family: var(--font-body); color: var(--text); background: var(--bg);
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+.dashboard-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px;
+}
+.brand { display: flex; align-items: center; gap: 16px; }
+.logo-mark {
+  font-family: 'Cambria Math', serif; font-style: italic; font-size: 2rem;
+  width: 64px; height: 64px; display: flex; align-items: center; justify-content: center;
+  background: var(--text); color: var(--bg); border-radius: 50%; letter-spacing: -0.05em;
+}
+.brand-text h1 {
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 800;
+  margin: 0; letter-spacing: -0.02em;
+}
+.tagline {
+  font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);
+  margin: 4px 0 0; text-transform: uppercase; letter-spacing: 0.1em;
+}
+.dashboard-grid {
+  display: grid; grid-template-columns: minmax(360px, 420px) 1fr; gap: 32px;
+}
+@media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } body { padding: 24px; } }
+.left-col, .right-col { display: flex; flex-direction: column; gap: 24px; }
+
+/* Form */
+.form-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 32px; position: relative;
+}
+.form-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+}
+.form-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px dashed var(--border); }
+.form-header h2 {
+  font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;
+  margin: 0 0 4px; letter-spacing: -0.01em;
+}
+.subtitle { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+
+.presets {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-bottom: 24px; padding: 12px 16px; background: var(--surface-alt);
+  border-radius: 4px;
+}
+.presets-label {
+  font-size: 0.75rem; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px;
+  font-family: var(--font-display);
+}
+.preset-btn {
+  padding: 6px 12px; background: transparent; border: 1px solid var(--border);
+  border-radius: 2px; color: var(--text); font-family: var(--font-display);
+  font-size: 0.8rem; cursor: pointer; transition: all 0.15s ease;
+}
+.preset-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.label-text {
+  font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+}
+.label-symbol {
+  font-family: 'Cambria Math', serif; font-style: italic;
+  font-size: 0.95rem; color: var(--accent);
+}
+.field input {
+  padding: 10px 12px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 2px; color: var(--text); font-family: var(--font-mono);
+  font-size: 1rem; transition: border-color 0.15s ease;
+}
+.field input:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+.hint { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
+.total-time {
+  grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; background: var(--surface-alt); border-left: 3px solid var(--accent);
+  margin-top: 8px;
+}
+.total-label { font-size: 0.85rem; color: var(--text-muted); }
+.total-value { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600; }
+.actions { grid-column: 1 / -1; display: flex; gap: 12px; margin-top: 8px; }
+.btn-primary, .btn-secondary {
+  padding: 12px 24px; font-family: var(--font-display); font-size: 0.9rem;
+  font-weight: 600; letter-spacing: 0.02em; border-radius: 2px;
+  cursor: pointer; transition: all 0.15s ease; border: 1px solid transparent;
+}
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); }
+.btn-secondary { background: transparent; border-color: var(--border); color: var(--text); }
+.btn-secondary:hover { border-color: var(--text-muted); }
+
+/* Equation card */
+.equation-card {
+  background: var(--surface-alt); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); padding: 24px; border-radius: 4px;
+}
+.equation-card h3 {
+  font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+  margin: 0 0 16px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.equation-label {
+  font-size: 0.78rem; color: var(--text-muted); margin: 12px 0 4px;
+  font-style: italic;
+}
+.equation {
+  font-family: 'Cambria Math', serif; font-size: 1.1rem; padding: 8px 12px;
+  background: var(--surface); border-radius: 2px; overflow-x: auto;
+}
+.equation.small { font-size: 0.85rem; line-height: 1.6; }
+.equation em { font-style: italic; }
+
+/* Right col */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; background: var(--surface);
+  border: 1px dashed var(--border); border-radius: 4px; padding: 64px 32px;
+  min-height: 400px;
+}
+.empty-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.3; }
+.empty-state h2 { font-family: var(--font-display); font-size: 1.3rem; margin: 0 0 8px; }
+.empty-state p { color: var(--text-muted); max-width: 400px; line-height: 1.6; margin: 0; }
+.empty-state strong { color: var(--accent); }
+
+.metrics-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.metric-card {
+  background: var(--surface); border: 1px solid var(--border); padding: 16px 20px;
+  border-radius: 4px; position: relative; overflow: hidden;
+}
+.metric-card::before {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+  background: var(--accent);
+}
+.metric-label {
+  font-family: var(--font-display); font-size: 0.72rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
+}
+.metric-value { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
+.metric-value .unit { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-left: 2px; }
+.metric-sub { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+.chart-container {
+  position: relative; width: 100%; height: 420px; background: var(--surface);
+  border: 1px solid var(--border); padding: 16px; border-radius: 4px;
+}
+.legend {
+  display: flex; gap: 24px; margin-top: 16px; padding: 12px 16px;
+  background: var(--surface-alt); border-radius: 2px; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot.work { background: #ff6b35; }
+.dot.rest { background: #4a90e2; }
+.dot.recovery { background: #6c757d; }
+
+.dashboard-footer {
+  margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.authors { color: var(--accent); }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <div class="brand">
+    <div class="logo-mark">∂F/∂t</div>
+    <div class="brand-text">
+      <h1>Motor Inteligente de Fatiga</h1>
+      <p class="tagline">EDO · Transformada de Laplace · Análisis dinámico</p>
+    </div>
+  </div>
+</header>
+
+<div class="dashboard-grid">
+
+  <aside class="left-col">
+    <section class="form-card">
+      <header class="form-header">
+        <h2>Parámetros del Circuito</h2>
+        <p class="subtitle">Configure los intervalos y la fisiología del atleta</p>
+      </header>
+
+      <div class="presets">
+        <span class="presets-label">Presets:</span>
+        <button class="preset-btn" data-w="20" data-r="10" data-n="8">Tabata clásico</button>
+        <button class="preset-btn" data-w="40" data-r="20" data-n="5">HIIT estándar</button>
+        <button class="preset-btn" data-w="60" data-r="30" data-n="6">Endurance</button>
+        <button class="preset-btn" data-w="45" data-r="15" data-n="10">EMOM intenso</button>
+      </div>
+
+      <form id="form" class="form-grid">
+        <div class="field">
+          <label><span class="label-text">Trabajo (s)</span><span class="label-symbol">W</span></label>
+          <input id="workDuration" type="number" value="40" min="1" max="600">
+          <small class="hint">Duración de cada esfuerzo</small>
+        </div>
+        <div class="field">
+          <label><span class="label-text">Descanso (s)</span><span class="label-symbol">R</span></label>
+          <input id="restDuration" type="number" value="20" min="0" max="600">
+          <small class="hint">Duración de cada recuperación</small>
+        </div>
+        <div class="field">
+          <label><span class="label-text">Rondas</span><span class="label-symbol">n</span></label>
+          <input id="rounds" type="number" value="5" min="1" max="50">
+          <small class="hint">Número total de ciclos</small>
+        </div>
+        <div class="field">
+          <label><span class="label-text">Recuperación</span><span class="label-symbol">k<sub>ia</sub></span></label>
+          <input id="kia" type="number" value="0.05" min="0.001" max="1" step="0.01">
+          <small class="hint">Tasa exponencial de recuperación</small>
+        </div>
+        <div class="field">
+          <label><span class="label-text">Intensidad</span><span class="label-symbol">E<sub>0</sub></span></label>
+          <input id="E0" type="number" value="10" min="0.1" max="100" step="0.5">
+          <small class="hint">Magnitud del esfuerzo</small>
+        </div>
+        <div class="total-time">
+          <span class="total-label">Tiempo total del circuito:</span>
+          <span class="total-value" id="totalTime">300s (5.0 min)</span>
+        </div>
+        <div class="actions">
+          <button type="button" id="btnSimular" class="btn-primary">Simular fatiga →</button>
+          <button type="button" id="btnReset" class="btn-secondary">Reiniciar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="equation-card">
+      <h3>Modelo Matemático</h3>
+      <p class="equation-label">EDO de primer orden:</p>
+      <div class="equation"><em>dF</em>/<em>dt</em> + <em>k<sub>ia</sub></em> · <em>F</em>(<em>t</em>) = <em>E</em>(<em>t</em>)</div>
+      <p class="equation-label">Condición inicial:</p>
+      <div class="equation"><em>F</em>(0) = 0</div>
+      <p class="equation-label">Solución (Laplace + Heaviside):</p>
+      <div class="equation small">
+        F(t) = (E<sub>0</sub>/k<sub>ia</sub>) · Σ [(1 − e<sup>−k<sub>ia</sub>(t−a<sub>i</sub>)</sup>)·U(t−a<sub>i</sub>) − (1 − e<sup>−k<sub>ia</sub>(t−b<sub>i</sub>)</sup>)·U(t−b<sub>i</sub>)]
+      </div>
+    </section>
+  </aside>
+
+  <main class="right-col">
+    <div id="emptyState" class="empty-state">
+      <div class="empty-icon">⏱</div>
+      <h2>Aún no hay simulación</h2>
+      <p>Configure los parámetros del circuito y presione <strong>Simular fatiga</strong> para visualizar la curva F(t).</p>
+    </div>
+    <div id="results" style="display:none">
+      <section class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Fatiga máxima</div>
+          <div class="metric-value" id="mFatigaMax">—</div>
+          <div class="metric-sub" id="mTiempoMax"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Promedio última ronda</div>
+          <div class="metric-value" id="mPromedioUlt">—</div>
+          <div class="metric-sub">durante el trabajo</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Fatiga residual</div>
+          <div class="metric-value" id="mResidual">—</div>
+          <div class="metric-sub" id="mResidualSub"></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Duración total</div>
+          <div class="metric-value" id="mDuracion">—</div>
+          <div class="metric-sub" id="mDuracionSub"></div>
+        </div>
+      </section>
+      <div class="chart-container"><canvas id="chart"></canvas></div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot work"></span>Fase de trabajo</div>
+        <div class="legend-item"><span class="dot rest"></span>Fase de descanso</div>
+        <div class="legend-item"><span class="dot recovery"></span>Recuperación final</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer class="dashboard-footer">
+  <span>Proyecto académico · Ecuaciones Diferenciales · IUAJC 2026</span>
+  <span class="authors">Anibal Caicedo · Santiago Orozco</span>
+</footer>
+
+<script>
+// ============================================================
+// MOTOR MATEMÁTICO (mismo algoritmo del backend)
+// ============================================================
+function generarDatosFatiga(p) {
+  const { workDuration: W, restDuration: R, rounds: n, kia, E0 } = p;
+  const totalTime = (W + R) * n + 60;
+  const data = [];
+  let fMax = 0, tFMax = 0, sumaUlt = 0, countUlt = 0;
+
+  for (let t = 0; t <= totalTime; t++) {
+    let F = 0;
+    for (let i = 0; i < n; i++) {
+      const a = i * (W + R);
+      const b = a + W;
+      if (t >= a) F += (E0 / kia) * (1 - Math.exp(-kia * (t - a)));
+      if (t >= b) F -= (E0 / kia) * (1 - Math.exp(-kia * (t - b)));
+    }
+    const fatigue = Math.round(F * 1000) / 1000;
+
+    const periodo = W + R;
+    const tCircuito = periodo * n;
+    let phase, round;
+    if (t >= tCircuito) { phase = 'recovery'; round = 0; }
+    else {
+      const idx = Math.floor(t / periodo);
+      const tRonda = t - idx * periodo;
+      phase = tRonda < W ? 'work' : 'rest';
+      round = idx + 1;
+    }
+
+    data.push({ t, fatigue, phase, round });
+    if (fatigue > fMax) { fMax = fatigue; tFMax = t; }
+    if (round === n && phase === 'work') { sumaUlt += fatigue; countUlt++; }
+  }
+
+  return {
+    data,
+    metricas: {
+      fatigaMaxima: fMax,
+      tiempoFatigaMaxima: tFMax,
+      fatigaFinal: data[data.length - 1].fatigue,
+      fatigaPromedioTrabajoUltimaRonda: countUlt > 0 ? Math.round((sumaUlt / countUlt) * 1000) / 1000 : 0,
+      duracionTotal: totalTime
+    }
+  };
+}
+
+// ============================================================
+// UI
+// ============================================================
+let chart = null;
+const $ = (id) => document.getElementById(id);
+
+function leerParams() {
+  return {
+    workDuration: parseFloat($('workDuration').value),
+    restDuration: parseFloat($('restDuration').value),
+    rounds: parseInt($('rounds').value, 10),
+    kia: parseFloat($('kia').value),
+    E0: parseFloat($('E0').value)
+  };
+}
+
+function actualizarTotalTime() {
+  const p = leerParams();
+  const total = (p.workDuration + p.restDuration) * p.rounds;
+  $('totalTime').textContent = `${total}s (${(total / 60).toFixed(1)} min)`;
+}
+
+function simular() {
+  const p = leerParams();
+  if (!p.workDuration || !p.rounds || !p.kia || !p.E0) {
+    alert('Completa todos los campos con valores válidos');
+    return;
+  }
+
+  const r = generarDatosFatiga(p);
+  $('emptyState').style.display = 'none';
+  $('results').style.display = 'block';
+
+  // Métricas
+  $('mFatigaMax').textContent = r.metricas.fatigaMaxima.toFixed(2);
+  $('mTiempoMax').textContent = `en t = ${r.metricas.tiempoFatigaMaxima}s`;
+  $('mPromedioUlt').textContent = r.metricas.fatigaPromedioTrabajoUltimaRonda.toFixed(2);
+  $('mResidual').textContent = r.metricas.fatigaFinal.toFixed(3);
+  $('mResidualSub').textContent = `a t = ${r.metricas.duracionTotal}s`;
+  const totalMin = (r.metricas.duracionTotal / 60).toFixed(1);
+  $('mDuracion').innerHTML = `${totalMin}<span class="unit">min</span>`;
+  $('mDuracionSub').textContent = `${r.metricas.duracionTotal}s simulados`;
+
+  // Gráfica
+  const ctx = $('chart').getContext('2d');
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: 'F(t)',
+        data: r.data.map(p => ({ x: p.t, y: p.fatigue })),
+        borderColor: '#ff6b35',
+        backgroundColor: 'rgba(255, 107, 53, 0.08)',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointBackgroundColor: (ctx) => {
+          const idx = ctx.dataIndex;
+          const punto = r.data[idx];
+          if (!punto) return '#ff6b35';
+          return punto.phase === 'work' ? '#ff6b35'
+               : punto.phase === 'rest' ? '#4a90e2' : '#6c757d';
+        },
+        fill: true,
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600, easing: 'easeOutCubic' },
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(20, 20, 20, 0.95)',
+          titleFont: { family: 'JetBrains Mono', size: 12 },
+          bodyFont: { family: 'JetBrains Mono', size: 12 },
+          padding: 12,
+          borderColor: '#ff6b35',
+          borderWidth: 1,
+          callbacks: {
+            title: (items) => `t = ${items[0].parsed.x}s`,
+            label: (ctx) => {
+              const punto = r.data[ctx.dataIndex];
+              if (!punto) return '';
+              const fase = punto.phase === 'work' ? 'Trabajo'
+                         : punto.phase === 'rest' ? 'Descanso' : 'Recuperación';
+              const ronda = punto.round > 0 ? ` · Ronda ${punto.round}` : '';
+              return `F(t) = ${punto.fatigue.toFixed(3)}  [${fase}${ronda}]`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: { display: true, text: 'Tiempo (segundos)',
+                   font: { family: 'JetBrains Mono', size: 12, weight: 'bold' } },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { font: { family: 'JetBrains Mono', size: 11 } }
+        },
+        y: {
+          title: { display: true, text: 'F(t) — Nivel de fatiga',
+                   font: { family: 'JetBrains Mono', size: 12, weight: 'bold' } },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { font: { family: 'JetBrains Mono', size: 11 } },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function reset() {
+  $('workDuration').value = 40;
+  $('restDuration').value = 20;
+  $('rounds').value = 5;
+  $('kia').value = 0.05;
+  $('E0').value = 10;
+  actualizarTotalTime();
+  if (chart) { chart.destroy(); chart = null; }
+  $('emptyState').style.display = 'flex';
+  $('results').style.display = 'none';
+}
+
+// Listeners
+document.querySelectorAll('input').forEach(i =>
+  i.addEventListener('input', actualizarTotalTime));
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $('workDuration').value = btn.dataset.w;
+    $('restDuration').value = btn.dataset.r;
+    $('rounds').value = btn.dataset.n;
+    actualizarTotalTime();
+  });
+});
+
+$('btnSimular').addEventListener('click', simular);
+$('btnReset').addEventListener('click', reset);
+actualizarTotalTime();
+</script>
+
+</body>
+</html>

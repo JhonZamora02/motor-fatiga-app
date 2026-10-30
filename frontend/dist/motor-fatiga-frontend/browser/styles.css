@@ -1,0 +1,57 @@
+@charset "UTF-8";
+@import "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap";
+
+/* src/styles.scss */
+:root {
+  --font-display:
+    "Space Grotesk",
+    system-ui,
+    sans-serif;
+  --font-body:
+    "Newsreader",
+    Georgia,
+    serif;
+  --font-mono:
+    "JetBrains Mono",
+    "Courier New",
+    monospace;
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-alt: #ede9e0;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --border: #d4cfc4;
+  --accent: #ff6b35;
+  --accent-dark: #e55525;
+  --error: #c0392b;
+  --success: #27ae60;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+button {
+  font-family: inherit;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* angular:styles/global:styles */
+/*# sourceMappingURL=styles.css.map */

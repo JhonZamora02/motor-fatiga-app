@@ -1,0 +1,30 @@
+{
+  "name": "motor-fatiga-backend",
+  "version": "1.0.0",
+  "description": "Backend serverless del Motor Inteligente de Fatiga - EDO + Transformada de Laplace",
+  "scripts": {
+    "dev": "vercel dev",
+    "dev:local": "ts-node server.ts",
+    "deploy": "vercel --prod",
+    "build": "tsc --noEmit",
+    "test": "ts-node lib/modelo-fatiga.test.ts"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@vercel/node": "^3.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0",
+    "vercel": "^33.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

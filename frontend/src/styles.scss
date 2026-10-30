@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* ── Tipografía ── */
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body:    'Outfit', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* ── Fondos ── */
+  --bg:          #f1f5f9;
+  --surface:     #ffffff;
+  --surface-alt: #f8fafc;
+
+  /* ── Texto ── */
+  --text:        #0f172a;
+  --text-muted:  #64748b;
+  --text-light:  #94a3b8;
+
+  /* ── Bordes ── */
+  --border:       #e2e8f0;
+  --border-focus: rgba(249, 115, 22, 0.45);
+
+  /* ── Acento — naranja vibrante ── */
+  --accent:           #f97316;
+  --accent-dark:      #ea580c;
+  --accent-light:     rgba(249, 115, 22, 0.10);
+  --accent-gradient:  linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+
+  /* ── Secundario — slate profundo ── */
+  --secondary:       #1e293b;
+  --secondary-light: #334155;
+
+  /* ── Estados ── */
+  --success:    #10b981;
+  --success-bg: rgba(16, 185, 129, 0.10);
+  --error:      #ef4444;
+  --error-bg:   rgba(239, 68, 68, 0.10);
+  --warn:       #f59e0b;
+  --warn-bg:    rgba(245, 158, 11, 0.10);
+
+  /* ── Sombras ── */
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:     0 4px 16px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg:     0 10px 32px rgba(0,0,0,0.09), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-accent: 0 4px 18px rgba(249, 115, 22, 0.35);
+  --shadow-accent-hover: 0 8px 28px rgba(249, 115, 22, 0.48);
+
+  /* ── Radio ── */
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ── Inputs — ocultar spinners numéricos ── */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ── Base de tarjeta global — aplica a cualquier .card ── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}

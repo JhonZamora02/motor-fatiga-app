@@ -1,0 +1,394 @@
+// ==============================================
+// DASHBOARD ROOT — Premium SaaS Fitness
+// ==============================================
+
+.dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: 0 48px 40px;
+  gap: 28px;
+}
+
+// ----- GRID PRINCIPAL -----
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 420px) 1fr;
+  gap: 24px;
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .dashboard      { padding: 0 20px 32px; }
+}
+
+.left-col, .right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ----- TARJETA DE ECUACIÓN -----
+.equation-card {
+  background: var(--secondary);
+  border: none;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.45);
+
+    svg { flex-shrink: 0; opacity: 0.6; }
+  }
+}
+
+.equation-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .equation-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    margin: 12px 0 0 0;
+    font-style: italic;
+  }
+
+  .equation {
+    font-family: 'Cambria Math', 'STIX Two Math', serif;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.92);
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    border: 1px solid rgba(255,255,255,0.08);
+
+    em { font-style: italic; }
+    &.small { font-size: 0.82rem; line-height: 1.6; }
+  }
+}
+
+// ----- ESTADOS VACÍOS / CARGA -----
+.empty-state, .loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 64px 32px;
+  min-height: 400px;
+  box-shadow: var(--shadow-sm);
+
+  .empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    opacity: 0.25;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: var(--text);
+  }
+
+  p {
+    color: var(--text-muted);
+    max-width: 380px;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  strong { color: var(--accent); }
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-banner {
+  background: var(--error-bg);
+  border-left: 4px solid var(--error);
+  padding: 12px 16px;
+  color: var(--error);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+// ----- MÉTRICAS -----
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  .metric-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+
+    .unit {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+  }
+
+  .metric-sub {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-light);
+    margin-top: 6px;
+  }
+}
+
+// ----- FOOTER -----
+.dashboard-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+
+  .authors { color: var(--accent); font-weight: 600; }
+}
+
+// ----- ANÁLISIS IA -----
+.ia-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.btn-ia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  align-self: flex-start;
+
+  .ia-btn-icon { color: var(--accent); font-size: 1rem; }
+
+  &:hover {
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-accent);
+  }
+}
+
+.ia-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.ia-spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+  flex-shrink: 0;
+}
+
+.ia-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #fff7ed, #fff);
+    border-bottom: 1px solid rgba(249, 115, 22, 0.12);
+  }
+
+  .ia-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .ia-refresh-btn {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+  }
+
+  &-text {
+    padding: 18px 20px;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--text);
+    margin: 0;
+
+    ::ng-deep {
+      b, strong { font-weight: 700; color: var(--text); }
+      ul { margin: 8px 0 4px 18px; padding: 0; list-style: disc; }
+      li {
+        margin: 5px 0;
+        line-height: 1.55;
+        color: var(--text);
+        &::marker { color: var(--accent); }
+      }
+    }
+  }
+}
+
+.ia-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--error-bg);
+  border-left: 4px solid var(--error);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--error);
+
+  .ia-retry-btn {
+    margin-left: auto;
+    background: transparent;
+    border: 1.5px solid var(--error);
+    color: var(--error);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+
+    &:hover { background: var(--error); color: #fff; }
+  }
+}
+
+// ----- INSIGHT CARD -----
+.insight-card {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  font-weight: 500;
+  border-left: 4px solid;
+
+  &.ok {
+    background: var(--success-bg);
+    border-color: var(--success);
+    color: #065f46;
+  }
+  &.warn {
+    background: var(--warn-bg);
+    border-color: var(--warn);
+    color: #92400e;
+  }
+  &.danger {
+    background: var(--error-bg);
+    border-color: var(--error);
+    color: #991b1b;
+  }
+}
